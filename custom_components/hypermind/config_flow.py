@@ -72,7 +72,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
         
         if user_input is not None:
-            # Validate scale values
             scale_min = user_input.get(CONF_SCALE_MIN, DEFAULT_SCALE_MIN)
             scale_max = user_input.get(CONF_SCALE_MAX, DEFAULT_SCALE_MAX)
             
@@ -102,15 +101,11 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         config_entry: config_entries.ConfigEntry,
     ) -> config_entries.OptionsFlow:
         """Create the options flow."""
-        return OptionsFlowHandler(config_entry)
+        return OptionsFlowHandler()
 
 
 class OptionsFlowHandler(config_entries.OptionsFlow):
     """Handle options flow for Hypermind."""
-
-    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
-        """Initialize options flow."""
-        self.config_entry = config_entry
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
@@ -125,10 +120,9 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             if scale_min >= scale_max:
                 errors["base"] = "invalid_scale"
             else:
-                # Update the config entry with new options
                 return self.async_create_entry(title="", data=user_input)
         
-        # Get current values from options or data
+        # Get current values - self.config_entry is set by parent class
         current_min = self.config_entry.options.get(
             CONF_SCALE_MIN,
             self.config_entry.data.get(CONF_SCALE_MIN, DEFAULT_SCALE_MIN)
