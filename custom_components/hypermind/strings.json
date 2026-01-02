@@ -3,19 +3,37 @@
     "step": {
       "user": {
         "title": "Connect to Hypermind",
-        "description": "Enter the connection details for your Hypermind instance.",
+        "description": "Enter the connection details for your Hypermind instance. Scale values are used for calculating the normalized ratio (0.0-1.0) for automations.",
         "data": {
           "host": "Host",
-          "port": "Port"
+          "port": "Port",
+          "scale_min": "Scale Minimum",
+          "scale_max": "Scale Maximum"
         }
       }
     },
     "error": {
       "cannot_connect": "Failed to connect to Hypermind. Please check the host and port.",
+      "invalid_scale": "Scale minimum must be less than scale maximum.",
       "unknown": "Unexpected error occurred."
     },
     "abort": {
       "already_configured": "This Hypermind instance is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Hypermind Options",
+        "description": "Configure the scale range for calculating the normalized ratio (0.0-1.0). The ratio is useful for RGB automations.",
+        "data": {
+          "scale_min": "Scale Minimum",
+          "scale_max": "Scale Maximum"
+        }
+      }
+    },
+    "error": {
+      "invalid_scale": "Scale minimum must be less than scale maximum."
     }
   }
 }

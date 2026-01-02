@@ -16,6 +16,9 @@ from .const import (
     DOMAIN,
     ATTR_ACTIVE_NODES,
     ATTR_DIRECT_CONNECTIONS,
+    ATTR_SCALE_MIN,
+    ATTR_SCALE_MAX,
+    ATTR_SCALE_RATIO,
 )
 
 SENSOR_DESCRIPTIONS: tuple[SensorEntityDescription, ...] = (
@@ -80,3 +83,18 @@ class HypermindSensor(CoordinatorEntity[HypermindDataUpdateCoordinator], SensorE
         if self.coordinator.data is None:
             return None
         return self.coordinator.data.get(self.entity_description.key)
+
+    @property
+    def extra_state_attributes(self) -> dict | None:
+        """Return additional attributes for the Active Nodes sensor."""
+        if self.coordinator.data is None:
+            return None
+        
+        # Only add scale attributes to the Active Nodes sensor
+        if self.entity_description.key == ATTR_ACTIVE_NODES:
+            return {
+                ATTR_SCALE_MIN: self.coordinator.data.get("scale_min"),
+                ATTR_SCALE_MAX: self.coordinator.data.get("scale_max"),
+                ATTR_SCALE_RATIO: self.coordinator.data.get("scale_ratio"),
+            }
+        return None
