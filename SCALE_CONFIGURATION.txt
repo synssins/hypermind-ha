@@ -1,0 +1,117 @@
+HYPERMIND INTEGRATION - SCALE CONFIGURATION GUIDE
+================================================
+
+The scale configuration determines how node counts are mapped to a 
+normalized ratio (0.0 to 1.0) for use in RGB automations.
+
+
+CONFIGURATION OPTIONS
+---------------------
+
+Scale Minimum (scale_min)
+  Default: 0
+  The node count that maps to 0.0 (typically green in RGB)
+  
+Scale Maximum (scale_max)
+  Default: 10000
+  The node count that maps to 1.0 (typically red in RGB)
+
+
+INITIAL SETUP
+-------------
+
+1. Go to Settings > Devices & Services > Add Integration
+2. Search for "Hypermind"
+3. Enter:
+   - Host: Your Hypermind server IP (e.g., 192.168.1.150)
+   - Port: Hypermind port (default: 3000)
+   - Scale Minimum: Your desired minimum (e.g., 0)
+   - Scale Maximum: Your desired maximum (e.g., 500)
+4. Click Submit
+
+
+CHANGING SCALE AFTER SETUP
+--------------------------
+
+1. Go to Settings > Devices & Services
+2. Find the Hypermind integration
+3. Click "Configure" (gear icon)
+4. Adjust Scale Minimum and Scale Maximum
+5. Click Submit
+6. The integration will reload with new scale values
+
+
+EXAMPLE SCALE RANGES
+--------------------
+
+Small/Personal Deployment:
+  Min: 0, Max: 500
+  - Color changes are more noticeable with fewer nodes
+  - Good for small homelab networks
+
+Medium Deployment:
+  Min: 0, Max: 5000
+  - Balanced range for moderate growth
+  - Default-like behavior
+
+Large Deployment:
+  Min: 1000, Max: 50000
+  - Ignores low counts (always some baseline)
+  - Good for established networks
+
+Custom Baseline:
+  Min: 100, Max: 1000
+  - Starts color change only after 100 nodes
+  - Reaches full red at 1000 nodes
+
+
+USING scale_ratio IN AUTOMATIONS
+--------------------------------
+
+The Active Nodes sensor exposes these attributes:
+  - scale_min: Your configured minimum
+  - scale_max: Your configured maximum
+  - scale_ratio: Calculated value between 0.0 and 1.0
+
+Example Template:
+  {{ state_attr("sensor.hypermind_active_nodes", "scale_ratio") }}
+
+RGB Light Example:
+  {% set ratio = state_attr("sensor.hypermind_active_nodes", "scale_ratio") | float(0) %}
+  hs_color: {{ [120 - (ratio * 120), 100] }}
+  
+  This creates:
+    ratio 0.0 = hue 120 (green)
+    ratio 0.5 = hue 60 (yellow)
+    ratio 1.0 = hue 0 (red)
+
+
+HOW THE RATIO IS CALCULATED
+---------------------------
+
+1. Get current node count
+2. Clamp to min/max range
+3. Calculate: (clamped - min) / (max - min)
+4. Round to 4 decimal places
+
+Example with scale 0-500 and 250 nodes:
+  ratio = (250 - 0) / (500 - 0) = 0.5
+
+Example with scale 100-1000 and 550 nodes:
+  ratio = (550 - 100) / (1000 - 100) = 0.5
+
+
+TROUBLESHOOTING
+---------------
+
+Scale ratio always 0.0:
+  - Check if node count is below scale_min
+  - Verify Hypermind is returning data
+
+Scale ratio always 1.0:
+  - Node count is at or above scale_max
+  - Consider increasing scale_max
+
+No attributes showing:
+  - Ensure integration is v1.1.0 or later
+  - Check Home Assistant logs for errors

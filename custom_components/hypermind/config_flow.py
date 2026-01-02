@@ -47,7 +47,7 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
     try:
         async with async_timeout.timeout(10):
             async with session.get(f"{base_url}/api/stats") as response:
-                if response.status \!= 200:
+                if response.status != 200:
                     raise CannotConnect(f"HTTP {response.status}")
                 api_data = await response.json()
                 if "count" not in api_data:
